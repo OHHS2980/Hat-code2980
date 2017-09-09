@@ -4,6 +4,8 @@
 
 int interval;
 
+int line;
+
 unsigned long previousMillis = millis();
 int pulseState = LOW;
 
@@ -34,26 +36,29 @@ void setState(int arr[], int state){
 
   return;
 }
-
+/*
 void normalMode(double dist){
 
   sigVal = analogRead(A0);
+  //scale dial input (0 to 1023) to smaller range (0.5 to 2), with no curve
   aScale = fscale(0,1023,0.5,2,sigVal,0);
   vol = dist * aScale;
 
+
+  //eventually these will be seperated into motor groups (see top of code), which is why we still have these seperated out
     if (vol == 0) {
       return setState(wholeGroup, LOW);
     }
     else if (0 < vol <= 50) {
       return setState(wholeGroup, pulseState);
     }
-    else if (50 < vol <= 100) {
+    else if (vol <= 100) {
        return setState(wholeGroup, pulseState);
     }
-    else if (100 < vol <= 160) {
+    else if (vol <= 160) {
        return setState(wholeGroup, pulseState);
     }
-    else if (160 < vol <= 200) {
+    else if (vol <= 200) {
       return setState(wholeGroup, pulseState);
     }
      else
@@ -62,7 +67,7 @@ void normalMode(double dist){
     }
 
 }
-
+*/
 void setup() {
   // put your setup code here, to run once:
   pinMode(2, OUTPUT);
@@ -105,36 +110,38 @@ void loop() {
   delay(1);        // delay in between reads for stability
   
   sigVal = analogRead(A0);
-  aScale = fscale(0,1023,0.5,2,sigVal,0);
+  aScale = fscale(0,1023,3,1.5,sigVal,0);
   vol = average * aScale;
   
-  interval = average; //pulses faster  a lot faster...trying to see if this is easier to feel
+  interval = fscale(0,2000,0,1000,vol,0.5); //pulses faster  a lot faster...trying to see if this is easier to feel
 
   
     if(vol == 0) 
     {
       pulseState == LOW;
     }
-    else if(vol > 300) 
+    else if(vol > 300*aScale) 
     {
       pulseState == LOW;
       setState(wholeGroup, pulseState);
     }
-    if(currentMillis - previousMillis >= interval) {
-      previousMillis = currentMillis;        
-        if(pulseState == LOW){
-          pulseState = HIGH;
-          setState(wholeGroup, pulseState);
-        }
-        else {
-          pulseState = LOW;
-          setState(wholeGroup, pulseState);
-        }
-    }
-    
-  
-  
-  Serial.println(vol);
+
+      if(currentMillis - previousMillis >= interval) {
+        previousMillis = currentMillis;        
+          if(pulseState == LOW){
+            pulseState = HIGH;
+            setState(wholeGroup, pulseState);
+          }
+          else {
+            pulseState = LOW;
+            setState(wholeGroup, pulseState);
+          }
+      }
+  Serial.print(vol);
+  Serial.print(" ,");          
+  Serial.print(interval);
+  Serial.print(" ,");
+  Serial.println(aScale);
 
 }
 
