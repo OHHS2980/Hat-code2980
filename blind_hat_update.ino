@@ -110,10 +110,10 @@ void loop() {
   delay(1);        // delay in between reads for stability
   
   sigVal = analogRead(A0);
-  aScale = fscale(0,1023,1,2.5,sigVal,0);
+  aScale = fscale(0,1023,1,3,sigVal,0);
   vol = average * aScale;
   
-  interval = vol; //pulses faster  a lot faster...trying to see if this is easier to feel
+  interval = fscale(0,2000,0,1000,vol,0.5); //pulses faster  a lot faster...trying to see if this is easier to feel
 
   
     if(vol == 0) 
@@ -137,8 +137,9 @@ void loop() {
             setState(wholeGroup, pulseState);
           }
       }
-            
   Serial.print(vol);
+  Serial.print(" ,");          
+  Serial.print(interval);
   Serial.print(" ,");
   Serial.println(aScale);
 
